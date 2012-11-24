@@ -1,0 +1,32 @@
+﻿namespace WorkflowsExperiment.Workflows
+{
+	using System.Collections.Generic;
+	using System.Linq;
+
+	using WorkflowsExperiment.Workflows.Steps;
+
+	public class WorkflowResult
+	{
+		public WorkflowResult()
+		{
+			this.Results = new List<WorkflowStepResult>();
+		}
+
+		
+
+		public List<WorkflowStepResult> Results { get; set; } 
+
+		public bool TotalSuccess
+		{
+			get
+			{
+				return this.Results.All(r => r.Success);
+			}
+		}
+
+		public void Add(WorkflowStepResult result)
+		{
+			
+		}
+	}
+}
