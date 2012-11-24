@@ -12,14 +12,18 @@
 		private readonly ManagementContext db;
 
 		private readonly List<WorkflowStepWrapper> steps;
-
+		// string is the paramater name, type is the type of the parameter and int is the step number, object is the value
 		private readonly List<Tuple<string, Type, int>> availableParams; 
+		private readonly List<Tuple<string, Type, object>> paramsWithValues; 
 
 		public WorkflowBase(ManagementContext db)
 		{
 			this.db = db;
 			this.steps = new List<WorkflowStepWrapper>();
+			
 			this.availableParams = new List<Tuple<string, Type, int>>();
+			this.paramsWithValues = new List<Tuple<string, Type, object>>();
+
 		}
 
 		protected void Add(WorkflowStepBase step, int stepNumber)
@@ -31,16 +35,6 @@
 			var returnType = runMethod.ReturnType;
 			// TODO: Insure that return type inherits from WorkflowStepResultBase
 
-			// get the returnType properties, in order to filter them out.
-			var unusableTypeList = new List<string> { "Success", "WorkDescription", "SuccessMessage", "ErrorMessage" };
-			var returnTypeProps = returnType.GetProperties().ToList().Where(p => !unusableTypeList.Contains(p.Name));
-			
-			foreach (var returnTypeProp in returnTypeProps)
-			{
-				// must add one to the available step, because otherwise, it would be passing something to itself, which wouldn't be correct;
-				availableParams.Add(Tuple.Create(returnTypeProp.Name, returnTypeProp.PropertyType, stepNumber + 1));
-			}
-			
 			var args = runMethod.GetParameters();
 			// if there are args (there might not be any)
 			// see if there are any available types that have the same name (ignoring case) and same type.  There should only ever be exactly 1
@@ -49,7 +43,19 @@
 				throw new WorkflowStepAdditionException("Attempted to add a workflow step that would be unable to execute.");
 			}
 
-			this.steps.Add(new WorkflowStepWrapper(){ ExecutionMethod = runMethod, Order = stepNumber, WorkflowStep = step});
+			// setup the available args
+			// get the returnType properties, in order to filter them out.
+			var unusableTypeList = this.GetWorkflowStepResultPropertyBlacklist();
+			var returnTypeProps = returnType.GetProperties().ToList().Where(p => !unusableTypeList.Contains(p.Name)).ToList();
+
+			foreach (var returnTypeProp in returnTypeProps)
+			{
+				// must add one to the available step, because otherwise, it would be passing something to itself, which wouldn't be correct;
+				// the value will be null to start with.
+				availableParams.Add(Tuple.Create(returnTypeProp.Name, returnTypeProp.PropertyType, stepNumber));
+			}
+
+			this.steps.Add(new WorkflowStepWrapper(){ ExecutionMethod = runMethod, ExecutionParameters = args, StepNumber = stepNumber, WorkflowStep = step});
 
 		}
 
@@ -60,9 +66,12 @@
 			foreach (var step in this.steps)
 			{
 				// run the step.
-				var resultObj = step.ExecutionMethod.Invoke(step.WorkflowStep, step.BuildArgs(availableParams));
+				var resultObj = step.ExecutionMethod.Invoke(step.WorkflowStep, step.BuildArgs(paramsWithValues));
 				if (resultObj is WorkflowStepResult)
 				{
+					// extract chainable values
+					this.ExtractAvailableParametersFromResult(resultObj, step.StepNumber);
+					// add to result set
 					var stepResult = resultObj as WorkflowStepResult;
 					// add the step to the results
 					results.Results.Add(stepResult);
@@ -86,14 +95,41 @@
 			return results;
 		}
 
-	}
-
-	public class WorkflowStepAdditionException : Exception
-	{
-		public WorkflowStepAdditionException(string message)
-			: base(message)
+		private void ExtractAvailableParametersFromResult(object resultObj, int step)
 		{
-			
+			var type = resultObj.GetType();
+
+			var unusableTypeList = this.GetWorkflowStepResultPropertyBlacklist();
+			var props = type.GetProperties().ToList().Where(p => !unusableTypeList.Contains(p.Name)).ToList();
+
+			foreach (var prop in props)
+			{
+				// get the availableParameter tuple
+				var tuple = this.availableParams.SingleOrDefault(t => (String.Compare(t.Item1, prop.Name, StringComparison.OrdinalIgnoreCase) == 0) && t.Item2 == prop.PropertyType && t.Item3 == step);
+				if (tuple == null)
+				{
+					string message = string.Format("Could not locate tuple while attempting to add the value {0} (from {1})", prop.Name, type.Name);
+					throw new WorkflowExecutionExeception(message);
+				}
+
+				try
+				{
+					var value = prop.GetValue(resultObj);
+					this.paramsWithValues.Add(Tuple.Create(tuple.Item1, tuple.Item2, value));
+				}
+				catch (Exception)
+				{
+					string message = string.Format("While attempting to add {0} to the available values, it could not be located on type {1}", prop.Name, type.Name);
+					throw new WorkflowExecutionExeception(message);
+				}
+
+			}
+		}
+
+		private List<string> GetWorkflowStepResultPropertyBlacklist()
+		{
+			var type = typeof(WorkflowStepResult);
+			return type.GetProperties().Select(p => p.Name).ToList();
 		}
 	}
 }
