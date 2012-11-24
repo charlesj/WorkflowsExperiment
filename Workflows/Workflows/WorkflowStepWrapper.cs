@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 
 namespace WorkflowsExperiment.Workflows
 {
+	using System;
+	using System.Collections.Generic;
+	using System.Linq;
 	using System.Reflection;
 
 	using WorkflowsExperiment.Workflows.Steps;
@@ -22,7 +21,7 @@ namespace WorkflowsExperiment.Workflows
 
 		public object[] BuildArgs(List<Tuple<string, Type, object>> availableParams)
 		{
-			List<object> args = new List<object>();
+			var args = new List<object>();
 			foreach (var param in this.ExecutionParameters)
 			{
 				var tuple = availableParams.SingleOrDefault(t => (String.Compare(t.Item1, param.Name, StringComparison.OrdinalIgnoreCase) == 0) && t.Item2 == param.ParameterType);

@@ -1,18 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace WorkflowsExperiment.DataAccess
+﻿namespace WorkflowsExperiment.DataAccess
 {
 	public class Order
 	{
+		public Organization Payer { get; set; }
+		public Organization Beneficiary { get; set; }
 
-	}
-
-	public class Subscription
-	{
-		
+		public Product Product { get; set; }
 	}
 }

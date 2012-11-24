@@ -14,9 +14,9 @@
 		private readonly List<WorkflowStepWrapper> steps;
 		// string is the paramater name, type is the type of the parameter and int is the step number, object is the value
 		private readonly List<Tuple<string, Type, int>> availableParams; 
-		private readonly List<Tuple<string, Type, object>> paramsWithValues; 
+		private readonly List<Tuple<string, Type, object>> paramsWithValues;
 
-		public WorkflowBase(ManagementContext db)
+		protected WorkflowBase(ManagementContext db)
 		{
 			this.db = db;
 			this.steps = new List<WorkflowStepWrapper>();
@@ -26,6 +26,11 @@
 
 		}
 
+		/// <summary>
+		/// Adds a step to the workflow.  
+		/// </summary>
+		/// <param name="step">The step to add.  Must contain a method called "run" which returns a type derived from WorkflowStepResult.</param>
+		/// <param name="stepNumber">The step number</param>
 		protected void Add(WorkflowStepBase step, int stepNumber)
 		{
 			var type = step.GetType();
@@ -33,7 +38,11 @@
 			var runMethod = type.GetMethod("Run");
 			// get the return type of the method
 			var returnType = runMethod.ReturnType;
-			// TODO: Insure that return type inherits from WorkflowStepResultBase
+			// insure that the type it returns derives from workflowsStepResult
+			if (returnType.BaseType != typeof(WorkflowStepResult))
+			{
+				throw new WorkflowStepAdditionException("Attempted to add a workflow step that did not return a type derived from WorkflowStepBase");
+			}
 
 			var args = runMethod.GetParameters();
 			// if there are args (there might not be any)
@@ -55,13 +64,13 @@
 				availableParams.Add(Tuple.Create(returnTypeProp.Name, returnTypeProp.PropertyType, stepNumber));
 			}
 
-			this.steps.Add(new WorkflowStepWrapper(){ ExecutionMethod = runMethod, ExecutionParameters = args, StepNumber = stepNumber, WorkflowStep = step});
+			this.steps.Add(new WorkflowStepWrapper { ExecutionMethod = runMethod, ExecutionParameters = args, StepNumber = stepNumber, WorkflowStep = step});
 
 		}
 
 		public WorkflowResult Execute()
 		{
-			WorkflowResult results = new WorkflowResult();
+			var results = new WorkflowResult();
 			this.db.OpenTransaction();
 			foreach (var step in this.steps)
 			{

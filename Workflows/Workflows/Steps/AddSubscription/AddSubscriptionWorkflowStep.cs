@@ -12,9 +12,9 @@
 			this.subscriber = subscriber;
 		}
 
-		public AddSubscriptionWorkflowStepResult Run(Order order)
+		public AddSubscriptionWorkflowStepResult Run(Order order, Application application)
 		{
-			var subscription = new Subscription();
+			var subscription = new Subscription{Subscriber = subscriber};
 			var result = new AddSubscriptionWorkflowStepResult(true, "", "", "", subscription);
 			return result;
 		}

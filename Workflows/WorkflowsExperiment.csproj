@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataAccess\Subscription.cs" />
     <Compile Include="Workflows\CompleteWorkflows\PlaceOrderWorkflow.cs" />
     <Compile Include="Workflows\Steps\AddSubscription\AddSubscriptionWorkflowStep.cs" />
     <Compile Include="Workflows\Steps\AddSubscription\AddSubscriptionWorkflowStepResult.cs" />

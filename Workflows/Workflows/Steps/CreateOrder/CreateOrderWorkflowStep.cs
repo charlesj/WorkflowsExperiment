@@ -1,7 +1,6 @@
-﻿namespace Workflows
+﻿namespace WorkflowsExperiment.Workflows.Steps
 {
 	using WorkflowsExperiment.DataAccess;
-	using WorkflowsExperiment.Workflows.Steps;
 
 	public class CreateOrderWorkflowStep : WorkflowStepBase
 	{
@@ -22,7 +21,7 @@
 		public CreateOrderWorkflowStepResult Run()
 		{
 			// Create the order
-			var order = new Order();
+			var order = new Order {Beneficiary = beneficiary, Product = product, Payer = payer};
 			return new CreateOrderWorkflowStepResult(true, "Created a new order", "order created was successful", "no errors", order);
 		}
 	}
