@@ -9,7 +9,7 @@
 
 	using Xunit;
 
-	public class Sandbox
+	public class WorkFlowIntegrationTests
 	{
 		[Fact]
 		public void Play()
