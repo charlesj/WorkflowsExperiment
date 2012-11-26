@@ -9,5 +9,7 @@ namespace WorkflowsExperiment.DataAccess
 	public class Product
 	{
 		public Application Application { get; set; }
+
+		public string Name { get; set; }
 	}
 }

@@ -104,6 +104,11 @@
 			return results;
 		}
 
+		public List<string> GetPreWorkDescription()
+		{
+			return this.steps.Select(step => step.WorkflowStep.PreWorkDescription).ToList();
+		}
+
 		private void ExtractAvailableParametersFromResult(object resultObj, int step)
 		{
 			var type = resultObj.GetType();

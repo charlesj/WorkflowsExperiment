@@ -22,7 +22,23 @@
 		{
 			// Create the order
 			var order = new Order {Beneficiary = beneficiary, Product = product, Payer = payer};
-			return new CreateOrderWorkflowStepResult(true, "Created a new order", "order created was successful", "no errors", order);
+			return new CreateOrderWorkflowStepResult(true, this.PostWorkDescription, string.Empty, order);
+		}
+
+		public override string PreWorkDescription
+		{
+			get
+			{
+				return string.Format("An order will be created with beneficiary {0} and payer {1} for product {2}", beneficiary.Name, payer.Name, product.Name);
+			}
+		}
+
+		public override string PostWorkDescription
+		{
+			get
+			{
+				return string.Format("An order was created with beneficiary {0} and payer {1} for product {2}", beneficiary.Name, payer.Name, product.Name);
+			}
 		}
 	}
 }

@@ -8,10 +8,8 @@ namespace WorkflowsExperiment.Workflows.Steps
 	{
 		public Order Order { get; private set; }
 
-		public Application Application { get; set; }
-
-		public CreateOrderWorkflowStepResult(bool success, string workDescription, string successMessage, string errorMessage, Order order)
-			: base(success, workDescription, successMessage, errorMessage)
+		public CreateOrderWorkflowStepResult(bool success, string workDescription, string errorMessage, Order order)
+			: base(success, workDescription, errorMessage)
 		{
 			this.Order = order;
 		}

@@ -8,5 +8,6 @@ namespace WorkflowsExperiment.DataAccess
 {
 	public class Organization
 	{
+		public string Name { get; set; }
 	}
 }

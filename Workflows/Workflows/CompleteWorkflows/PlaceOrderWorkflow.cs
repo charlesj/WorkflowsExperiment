@@ -9,10 +9,13 @@
 			: base(db)
 		{
 			var orderStep = new CreateOrderWorkflowStep(db, beneficiary, product, payer);
-			var subStep = new AddSubscriptionWorkflowStep(db, beneficiary);
-
 			this.Add(orderStep, 1);
-			this.Add(subStep, 2);
+
+			if (product.Application != null)
+			{
+				var subStep = new AddSubscriptionWorkflowStep(db, beneficiary, product.Application);
+				this.Add(subStep, 2);
+			}
 		}
 	}
 }

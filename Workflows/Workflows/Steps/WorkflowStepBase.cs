@@ -10,5 +10,9 @@
 		{
 			this.Context = context;
 		}
+
+		public abstract string PreWorkDescription { get; }
+
+		public abstract string PostWorkDescription { get; }
 	}
 }

@@ -2,17 +2,15 @@
 {
 	public abstract class WorkflowStepResult
 	{
-		protected WorkflowStepResult(bool success, string workDescription, string successMessage, string errorMessage)
+		protected WorkflowStepResult(bool success, string workDescription, string errorMessage)
 		{
 			Success = success;
-			WorkDescription = workDescription;
-			SuccessMessage = successMessage;
+			PostWorkDescription = workDescription;
 			ErrorMessage = errorMessage;
 		}
 
 		public bool Success { get; private set; }
-		public string WorkDescription { get; private set; }
-		public string SuccessMessage { get; private set; }
+		public string PostWorkDescription { get; private set; }
 		public string ErrorMessage { get; private set; }
 	}
 }

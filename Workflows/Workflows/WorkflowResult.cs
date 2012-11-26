@@ -26,7 +26,12 @@
 
 		public void Add(WorkflowStepResult result)
 		{
-			
+			this.Results.Add(result);
+		}
+
+		public List<string> DescribeResults()
+		{
+			return this.Results.Select(result => result.PostWorkDescription).ToList();
 		}
 	}
 }

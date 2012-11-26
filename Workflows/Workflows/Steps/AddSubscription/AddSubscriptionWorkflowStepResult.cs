@@ -6,8 +6,8 @@
 	{
 		public Subscription Subscription { get; private set; }
 
-		public AddSubscriptionWorkflowStepResult(bool success, string workDescription, string successMessage, string errorMessage, Subscription subscription)
-			: base(success, workDescription, successMessage, errorMessage)
+		public AddSubscriptionWorkflowStepResult(bool success, string workDescription, string errorMessage, Subscription subscription)
+			: base(success, workDescription, errorMessage)
 		{
 			this.Subscription = subscription;
 		}
